@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 152 176" role="img" aria-labelledby="title">
+  <title id="title">Outline black light bulb icon</title>
+  <g fill="none" stroke="#171717" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M76 28v-16" stroke-width="11"/>
+    <path d="M35 43 25 28" stroke-width="11"/>
+    <path d="m117 43 10-15" stroke-width="11"/>
+    <path d="M18 77H7" stroke-width="11"/>
+    <path d="M145 77h-11" stroke-width="11"/>
+    <path d="m25 115-14 7" stroke-width="11"/>
+    <path d="m127 115 14 7" stroke-width="11"/>
+    <path
+      d="M76 35c-33 0-58 25-58 57 0 19 9 34 23 45 6 5 10 11 11 19h48c1-8 5-14 11-19 14-11 23-26 23-45 0-32-25-57-58-57Z"
+      stroke-width="10"
+    />
+    <path d="M82 57c18 3 29 16 30 35" stroke-width="8"/>
+    <path d="M48 158h56" stroke-width="9"/>
+    <path d="M54 171h44" stroke-width="8"/>
+  </g>
+</svg>

@@ -1,7 +1,35 @@
-import Image from "next/image";
+// import Image from "next/image";
+import { HeroIntro } from "@/components/HeroIntro";
 
-export default function Home() {
-  return (
+export default function StartPage() {
+  return <HeroIntro />;
+}
+
+// export default function StartPage() {
+//   return (
+//     <div className="container">
+//       <div className="header">
+//         <div className="logo">
+//         </div>
+//         <div className="nav">
+//         </div>
+//         <div className="socials">
+//         </div>
+//         <div className="light-or-dark-mode">
+//         </div>
+//       </div>
+
+//       <div className="main container">
+//       </div>
+
+//       <div className="footer">
+//       </div>
+//     </div>    
+//   )
+// }
+
+
+/*return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
         <Image
@@ -63,4 +91,4 @@ export default function Home() {
       </main>
     </div>
   );
-}
+*/

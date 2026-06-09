@@ -44,14 +44,6 @@ export function HeroIntro() {
 
   return (
     <section ref={root} className="min-h-screen px-8 py-10">
-      <header className="hero-item flex items-center justify-between opacity-0">
-        <span className="font-mono text-sm">APARICIO</span>
-        <nav className="flex gap-6 text-sm">
-          <a href="/home">Home</a>
-          <a href="/projects">Projects</a>
-        </nav>
-      </header>
-
       <main className="mt-28 max-w-3xl">
         <p className="hero-item opacity-0 text-sm uppercase">Portfolio</p>
         <h1 className="hero-item opacity-0 mt-4 text-5xl font-semibold">

@@ -1,6 +1,7 @@
 "use client";
 
 import { animate, createScope, stagger } from "animejs";
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 
 export function Header() {
@@ -37,8 +38,9 @@ export function Header() {
     <header ref={root} className="flex items-center justify-between px-8 py-10">
       <span className="header-item font-mono text-sm opacity-0">APARICIO</span>
       <nav className="header-item flex gap-6 text-sm opacity-0">
-        <a href="/home">Home</a>
-        <a href="/projects">Projects</a>
+        <Link href="/">Home</Link>
+        <Link href="/projects">Projects</Link>
+        <Link href="/about">About</Link>
       </nav>
     </header>
   );

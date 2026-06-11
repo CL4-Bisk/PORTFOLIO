@@ -8,9 +8,9 @@ type ForecastResponse = {
     time: string[];
     temperature_2m_max: number[];
     temperature_2m_min: number[];
-    weathercode: number[];
+    weather_code: number[];
     precipitation_probability_max: number[];
-    windspeed_10m_max: number[];
+    wind_speed_10m_max: number[];
   };
 };
 
@@ -50,7 +50,7 @@ function buildForecastUrl(latitude: number, longitude: number) {
     latitude: String(latitude),
     longitude: String(longitude),
     daily:
-      "temperature_2m_max,temperature_2m_min,weathercode,precipitation_probability_max,windspeed_10m_max",
+      "temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max,wind_speed_10m_max",
     timezone: "auto",
     forecast_days: "7",
   });
@@ -142,9 +142,9 @@ export function Weather() {
           date: weather.forecast.daily.time[0],
           high: weather.forecast.daily.temperature_2m_max[0],
           low: weather.forecast.daily.temperature_2m_min[0],
-          code: weather.forecast.daily.weathercode[0],
+          code: weather.forecast.daily.weather_code[0],
           rain: weather.forecast.daily.precipitation_probability_max[0],
-          wind: weather.forecast.daily.windspeed_10m_max[0],
+          wind: weather.forecast.daily.wind_speed_10m_max[0],
         }
       : null;
 

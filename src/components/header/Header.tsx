@@ -9,6 +9,7 @@ type Theme = "light" | "dark";
 
 const THEME_STORAGE_KEY = "theme";
 const THEME_CHANGE_EVENT = "themechange";
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 const getSavedTheme = (): Theme | null => {
   if (typeof window === "undefined") return null;
@@ -116,11 +117,11 @@ export function Header() {
           className="grid size-6 place-items-center"
         >
           <Image
-            src={
+            src={`${basePath}${
               theme === "dark"
                 ? "/assets/bulbs/bulb-filled-yellow.svg"
                 : "/assets/bulbs/bulb-outline-black.svg"
-            }
+            }`}
             alt=""
             width={20}
             height={20}

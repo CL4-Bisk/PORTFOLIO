@@ -1,14 +1,12 @@
 // import Image from "next/image";
 import { HeroIntro } from "@/components/HeroIntro";
-import { Footer } from "@/components/footer/Footer";
-import { Header } from "@/components/header/Header";
+import { Weather } from "@/components/weather/weather";
 
 export default function StartPage() {
   return (
     <>
-      <Header />
+      <Weather />
       <HeroIntro />
-      <Footer />
     </>
   );
 }

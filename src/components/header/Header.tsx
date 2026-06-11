@@ -35,8 +35,8 @@ export function Header() {
   }, []);
 
   return (
-    <header ref={root} className="flex items-center justify-between px-8 py-10">
-      <span className="header-item font-mono text-sm opacity-0">APARICIO</span>
+    <header ref={root} className="fixed top-0 left-0 z-50 w-full flex items-center justify-between px-8 py-10">
+      <Link href="/" className="header-item font-mono text-sm opacity-0">APARICIO</Link>
       <nav className="header-item flex gap-6 text-sm opacity-0">
         <Link href="/">Home</Link>
         <Link href="/projects">Projects</Link>

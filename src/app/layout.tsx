@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "../../public/global/globals.css";
 import { Providers } from "./provider";
+import { Header } from "@/components/header/Header";
+import { Footer } from "@/components/footer/Footer";
 
 export const metadata: Metadata = {
   title: "APARICIO | Developer Portfolio",
@@ -11,7 +13,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+
+          <main className="pt-28 pb-28">
+            {children}
+          </main>
+
+          <Footer />
+        </Providers>
       </body>
     </html>
   )

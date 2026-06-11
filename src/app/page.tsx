@@ -1,6 +1,6 @@
 // import Image from "next/image";
 import { HeroIntro } from "@/components/HeroIntro";
-import { Weather } from "@/components/weather/weather";
+import { Weather } from "@/components/weather/Weather";
 
 export default function StartPage() {
   return (
@@ -10,30 +10,6 @@ export default function StartPage() {
     </>
   );
 }
-
-// export default function StartPage() {
-//   return (
-//     <div className="container">
-//       <div className="header">
-//         <div className="logo">
-//         </div>
-//         <div className="nav">
-//         </div>
-//         <div className="socials">
-//         </div>
-//         <div className="light-or-dark-mode">
-//         </div>
-//       </div>
-
-//       <div className="main container">
-//       </div>
-
-//       <div className="footer">
-//       </div>
-//     </div>    
-//   )
-// }
-
 
 /*return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">

@@ -28,3 +28,7 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans-stack);
 }
+
+html {
+  scrollbar-width: none;
+}

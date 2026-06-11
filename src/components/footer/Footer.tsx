@@ -35,9 +35,9 @@ export function Footer() {
   }, []);
 
   return (
-    <footer ref={root} className="fixed bottom-0 left-0 z-50 w-full flex items-center justify-between px-8 py-10">
+    <footer ref={root} className="fixed bottom-0 left-0 z-50 w-full flex items-center justify-between border-t border-foreground/10 bg-background/95 px-4 py-6 backdrop-blur sm:px-8 sm:py-10">
       <Link href="/" className="footer-item font-mono text-sm opacity-0">APARICIO</Link>
-      <nav className="footer-item flex gap-6 text-sm opacity-0">
+      <nav className="footer-item flex gap-4 text-sm opacity-0 sm:gap-6">
         <p>CL4-Bisk</p>
         <p>2023</p>
       </nav>

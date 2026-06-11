@@ -103,7 +103,7 @@ export function Header() {
   }, []);
 
   return (
-    <header ref={root} className="fixed top-0 left-0 z-50 w-full flex items-center justify-between px-4 py-6 sm:px-8 sm:py-10">
+    <header ref={root} className="fixed top-0 left-0 z-50 w-full flex items-center justify-between border-b border-foreground/10 bg-background/95 px-4 py-6 backdrop-blur sm:px-8 sm:py-10">
       <Link href="/" className="header-item font-mono text-sm opacity-0">APARICIO</Link>
       <nav className="header-item flex items-center justify-center gap-3 text-sm opacity-0 sm:gap-6">
         <Link href="/">Home</Link>

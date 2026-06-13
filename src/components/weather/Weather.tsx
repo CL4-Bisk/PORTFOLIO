@@ -34,6 +34,7 @@ const FALLBACK_LOCATION = {
   longitude: 122.2363,
   name: "Iloilo fallback",
 };
+const loadingMetricLabels = ["High", "Low", "Rain", "Wind"];
 
 function getBrowserPosition() {
   return new Promise<GeolocationPosition>((resolve, reject) => {
@@ -102,6 +103,7 @@ export function Weather() {
         if (!("geolocation" in navigator)) {
           throw new Error("Geolocation is not available in this browser.");
         }
+
         const position = await getBrowserPosition();
         await fetchForecast(
           position.coords.latitude,
@@ -147,62 +149,80 @@ export function Weather() {
           wind: weather.forecast.daily.wind_speed_10m_max[0],
         }
       : null;
+  const weatherSummary =
+    weather.status === "success"
+      ? `${weather.locationName} - ${weather.forecast.timezone}`
+      : "Loading weather from your browser location.";
+  const metrics = today
+    ? [
+        { label: "High", value: `${Math.round(today.high)} C` },
+        { label: "Low", value: `${Math.round(today.low)} C` },
+        { label: "Rain", value: `${today.rain}%` },
+        { label: "Wind", value: `${Math.round(today.wind)} km/h` },
+      ]
+    : [];
 
   return (
-    <section className="px-8 pb-16">
-      <div className="max-w-3xl rounded-md border border-foreground/15 p-5">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl">
+        <div className="grid gap-6 rounded-lg border border-line bg-panel p-5 shadow-sm lg:grid-cols-[minmax(0,1fr)_32rem] lg:items-end">
           <div>
-            <p className="font-mono text-xs uppercase text-neutral-500">
-              Weather
+            <p className="font-mono text-xs font-semibold uppercase text-accent">
+              Local Weather
             </p>
-            <h2 className="mt-1 text-2xl font-semibold">
-              {today ? getWeatherLabel(today.code) : "Local forecast"}
+            <h2 className="mt-2 text-3xl font-semibold text-balance">
+              {today ? getWeatherLabel(today.code) : "Forecast is loading"}
             </h2>
-            <p className="mt-1 text-sm text-neutral-500">
-              {weather.status === "success"
-                ? `${weather.locationName} - ${weather.forecast.timezone}`
-                : "Loading weather from your browser location."}
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
+              {weatherSummary}
             </p>
+
+            {weather.status === "loading" && (
+              <p className="mt-5 text-sm text-muted" aria-live="polite">
+                Loading forecast...
+              </p>
+            )}
+
+            {weather.status === "error" && (
+              <p
+                className="mt-5 text-sm font-medium text-accent-alt"
+                aria-live="polite"
+              >
+                {weather.message}
+              </p>
+            )}
+
+            {weather.status === "success" && weather.note && (
+              <p className="mt-5 text-sm text-muted">{weather.note}</p>
+            )}
           </div>
+
+          {today ? (
+            <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+              {metrics.map((metric) => (
+                <div key={metric.label} className="border-t border-line pt-4">
+                  <dt className="text-muted">{metric.label}</dt>
+                  <dd className="mt-2 font-mono text-2xl font-semibold">
+                    {metric.value}
+                  </dd>
+                </div>
+              ))}
+              <div className="col-span-2 border-t border-line pt-4 sm:col-span-4">
+                <dt className="text-muted">Date</dt>
+                <dd className="mt-2 font-medium">{today.date}</dd>
+              </div>
+            </dl>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+              {loadingMetricLabels.map((label) => (
+                <div key={label} className="border-t border-line pt-4">
+                  <p className="text-muted">{label}</p>
+                  <div className="mt-3 h-8 rounded-md bg-panel-muted" />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-
-        {weather.status === "loading" && (
-          <p className="mt-5 text-sm text-neutral-500">Loading forecast...</p>
-        )}
-
-        {weather.status === "error" && (
-          <p className="mt-5 text-sm text-red-500">{weather.message}</p>
-        )}
-
-        {weather.status === "success" && weather.note && (
-          <p className="mt-5 text-sm text-neutral-500">{weather.note}</p>
-        )}
-
-        {today && (
-          <dl className="mt-5 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
-            <div>
-              <dt className="text-neutral-500">High</dt>
-              <dd className="mt-1 text-xl font-semibold">{today.high} deg C</dd>
-            </div>
-            <div>
-              <dt className="text-neutral-500">Low</dt>
-              <dd className="mt-1 text-xl font-semibold">{today.low} deg C</dd>
-            </div>
-            <div>
-              <dt className="text-neutral-500">Rain</dt>
-              <dd className="mt-1 text-xl font-semibold">{today.rain}%</dd>
-            </div>
-            <div>
-              <dt className="text-neutral-500">Wind</dt>
-              <dd className="mt-1 text-xl font-semibold">{today.wind} km/h</dd>
-            </div>
-            <div className="col-span-2 sm:col-span-4">
-              <dt className="text-neutral-500">Date</dt>
-              <dd className="mt-1">{today.date}</dd>
-            </div>
-          </dl>
-        )}
       </div>
     </section>
   );

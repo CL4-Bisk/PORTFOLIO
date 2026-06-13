@@ -2,36 +2,72 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* :root {
-  --background: #ffffff;
-  --foreground: #171717;
-} */
-
-html.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --background: #f7f8f6;
+  --foreground: #171a18;
+  --muted: #636b66;
+  --panel: #ffffff;
+  --panel-muted: #eef2ee;
+  --line: #d8dfd8;
+  --accent: #277c68;
+  --accent-strong: #155e4e;
+  --accent-soft: #ddf3eb;
+  --accent-alt: #b74d6e;
+  --accent-warm: #d8a519;
   --font-sans-stack: "Aptos", "Segoe UI", system-ui, -apple-system,
     BlinkMacSystemFont, sans-serif;
   --font-mono-stack: "Cascadia Mono", "SFMono-Regular", Consolas,
     "Liberation Mono", monospace;
 }
 
+html.dark {
+  color-scheme: dark;
+  --background: #000000;
+  --foreground: #ededed;
+  --muted: #a3a3a3;
+  --panel: #0a0a0a;
+  --panel-muted: #171717;
+  --line: #2a2a2a;
+  --accent: #77d2b2;
+  --accent-strong: #9be4ca;
+  --accent-soft: #123228;
+  --accent-alt: #f08aac;
+  --accent-warm: #f6ca55;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans-stack);
-  --font-mono: var(--font-mono-stack);
+  --color-muted: var(--muted);
+  --color-panel: var(--panel);
+  --color-panel-muted: var(--panel-muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-alt: var(--accent-alt);
+  --color-accent-warm: var(--accent-warm);
+  --font-sans: "Aptos", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  --font-mono: "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono",
+    monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   html:not(.light) {
-    --background: #0a0a0a;
+    color-scheme: dark;
+    --background: #000000;
     --foreground: #ededed;
+    --muted: #a3a3a3;
+    --panel: #0a0a0a;
+    --panel-muted: #171717;
+    --line: #2a2a2a;
+    --accent: #77d2b2;
+    --accent-strong: #9be4ca;
+    --accent-soft: #123228;
+    --accent-alt: #f08aac;
+    --accent-warm: #f6ca55;
   }
 }
 
@@ -39,8 +75,30 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans-stack);
+  min-height: 100dvh;
+  text-rendering: optimizeLegibility;
 }
 
 html {
   scrollbar-width: none;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--foreground);
+}
+
+a {
+  text-underline-offset: 0.25em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

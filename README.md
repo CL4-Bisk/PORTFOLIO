@@ -97,10 +97,13 @@ Optional values are listed in `.env.example`:
 ```txt
 NEXT_PUBLIC_OPENMETEO_API_URL
 GITHUB_USERNAME
+GITHUB_ALLOWED_REPOS
 GITHUB_TOKEN_PERSONAL
 GITHUB_TOKEN_UPDIKO
 GITHUB_TOKEN_TWOBIT_FORGE
 ```
+
+Use `GITHUB_ALLOWED_REPOS` as a comma-separated `owner/repo` allowlist for the projects page. Tokens provide API access and rate-limit headroom; the allowlist decides which repositories are displayed.
 
 ## Getting Started
 

@@ -21,11 +21,11 @@ jobs:
       contents: read
     env:
       NEXT_PUBLIC_BASE_PATH: /PORTFOLIO
-      GITHUB_USERNAME: ${{ vars.GITHUB_USERNAME || 'CL4-Bisk' }}
-      GITHUB_ALLOWED_REPOS: ${{ vars.GITHUB_ALLOWED_REPOS }}
-      GITHUB_TOKEN_PERSONAL: ${{ secrets.GITHUB_TOKEN_PERSONAL }}
-      GITHUB_TOKEN_UPDIKO: ${{ secrets.GITHUB_TOKEN_UPDIKO }}
-      GITHUB_TOKEN_TWOBIT_FORGE: ${{ secrets.GITHUB_TOKEN_TWOBIT_FORGE }}
+      GITHUB_USERNAME: ${{ vars.GH_USERNAME || 'CL4-Bisk' }}
+      GITHUB_ALLOWED_REPOS: ${{ vars.GH_ALLOWED_REPOS }}
+      GITHUB_TOKEN_PERSONAL: ${{ secrets.GH_TOKEN_PERSONAL }}
+      GITHUB_TOKEN_UPDIKO: ${{ secrets.GH_TOKEN_UPDIKO }}
+      GITHUB_TOKEN_TWOBIT_FORGE: ${{ secrets.GH_TOKEN_TWOBIT_FORGE }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6

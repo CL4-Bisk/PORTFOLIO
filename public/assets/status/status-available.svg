@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title">
+  <title id="title">Available status icon</title>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="#277c68" stroke-width="10" d="M80 26v-12M45 39l-8-11M115 39l8-11M31 72H18M142 72h-13"/>
+    <path fill="#ffc928" stroke="#171717" stroke-width="7" d="M80 38c-25 0-44 19-44 44 0 15 7 27 18 36 5 4 8 9 9 15h34c1-6 4-11 9-15 11-9 18-21 18-36 0-25-19-44-44-44Z"/>
+    <path stroke="#fff7cf" stroke-width="7" d="M86 56c14 3 23 13 24 27"/>
+    <path stroke="#171717" stroke-width="7" d="M62 134h36M66 146h28"/>
+    <path fill="#277c68" stroke="#171717" stroke-width="6" d="M121 107a22 22 0 1 0 0 44 22 22 0 0 0 0-44Z"/>
+    <path stroke="#fff" stroke-width="7" d="m110 129 8 8 15-18"/>
+  </g>
+</svg>

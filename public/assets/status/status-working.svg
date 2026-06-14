@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title">
+  <title id="title">Working status icon</title>
+  <g fill="none" stroke="#171717" stroke-linecap="round" stroke-linejoin="round">
+    <rect width="104" height="72" x="28" y="38" fill="#eef2ee" stroke-width="7" rx="10"/>
+    <path fill="#171717" stroke-width="7" d="M14 125h132l-11 16H25L14 125Z"/>
+    <path stroke="#277c68" stroke-width="8" d="m61 66-15 12 15 12M99 66l15 12-15 12"/>
+    <path stroke="#d8a519" stroke-width="8" d="m86 61-12 34"/>
+    <path fill="#77d2b2" stroke-width="6" d="M120 20h16v16h-16zM102 21h5M120 50h20"/>
+  </g>
+</svg>

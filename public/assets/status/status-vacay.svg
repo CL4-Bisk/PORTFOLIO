@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title">
+  <title id="title">Vacation status icon</title>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="#d8a519" stroke-width="8" d="M117 34v-12M117 83v12M92 58H80M154 58h-12M99 40l-9-9M135 40l9-9M99 76l-9 9M135 76l9 9"/>
+    <path fill="#ffc928" stroke="#171717" stroke-width="6" d="M117 40a18 18 0 1 0 0 36 18 18 0 0 0 0-36Z"/>
+    <path stroke="#171717" stroke-width="7" d="M79 57c-19 22-28 49-25 81M61 101c13-5 30 2 41 16M54 123c-14-9-31-6-41 7"/>
+    <path fill="#277c68" stroke="#171717" stroke-width="6" d="M78 57C59 36 34 32 13 45c18 2 36 11 50 27 5-9 10-14 15-15Z"/>
+    <path fill="#77d2b2" stroke="#171717" stroke-width="6" d="M79 57c26-5 47 5 60 28-18-7-38-7-59 1 3-11 3-21-1-29Z"/>
+    <path stroke="#277c68" stroke-width="8" d="M20 143c19-9 38-9 57 0s38 9 57 0"/>
+  </g>
+</svg>

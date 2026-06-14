@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title">
+  <title id="title">Busy status icon</title>
+  <g fill="none" stroke="#171717" stroke-linecap="round" stroke-linejoin="round">
+    <rect width="96" height="108" x="32" y="30" fill="#fff" stroke-width="7" rx="14"/>
+    <path fill="#f08aac" stroke-width="7" d="M32 55h96"/>
+    <path stroke-width="7" d="M58 22v22M102 22v22M55 78h12M80 78h12M105 78h12M55 101h12M80 101h12M105 101h12"/>
+    <path fill="#d94d58" stroke-width="7" d="M117 104a24 24 0 1 0 0 48 24 24 0 0 0 0-48Z"/>
+    <path stroke="#fff" stroke-width="7" d="M107 128h20"/>
+  </g>
+</svg>

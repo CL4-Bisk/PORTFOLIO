@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title">
+  <title id="title">Learning status icon</title>
+  <g fill="none" stroke="#171717" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#ffffff" stroke-width="7" d="M29 44h45c11 0 19 8 19 19v75H48c-11 0-19-8-19-19V44Z"/>
+    <path fill="#eef2ee" stroke-width="7" d="M131 44H93v94h19c11 0 19-8 19-19V44Z"/>
+    <path stroke="#277c68" stroke-width="7" d="M49 70h24M49 91h22M108 70h7M108 91h7"/>
+    <path fill="#d8a519" stroke-width="7" d="m80 18 56 21-56 21-56-21 56-21Z"/>
+    <path stroke="#171717" stroke-width="7" d="M119 48v26"/>
+    <path fill="#f08aac" stroke-width="6" d="M119 75a7 7 0 1 0 0 14 7 7 0 0 0 0-14Z"/>
+  </g>
+</svg>

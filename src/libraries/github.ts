@@ -39,6 +39,7 @@ const tokens = [
   process.env.GITHUB_TOKEN_UPDIKO,
   process.env.GITHUB_TOKEN_TWOBIT_FORGE,
 ].filter((token): token is string => Boolean(token));
+const githubUsername = process.env.GITHUB_USERNAME?.trim();
 
 function parseAllowedRepos() {
   const repos =
@@ -102,6 +103,28 @@ async function fetchReposForToken(token: string): Promise<PortfolioRepo[]> {
   return repos.filter(shouldShowRepo).map(toPortfolioRepo);
 }
 
+async function fetchPublicReposForUsername(
+  username: string,
+): Promise<PortfolioRepo[]> {
+  const response = await fetch(
+    `https://api.github.com/users/${encodeURIComponent(username)}/repos?type=owner&sort=pushed&direction=desc&per_page=100`,
+    {
+      headers: githubHeaders(),
+      next: { revalidate: 3600 },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch public GitHub repositories for "${username}"`,
+    );
+  }
+
+  const repos: GithubRepo[] = await response.json();
+
+  return repos.filter(shouldShowRepo).map(toPortfolioRepo);
+}
+
 async function fetchAllowedRepo(fullName: string): Promise<PortfolioRepo> {
   const parts = fullName.split("/");
 
@@ -155,7 +178,19 @@ export async function getGithubRepos() {
     uniqueRepos.set(repo.id, repo);
   }
 
-  return [...uniqueRepos.values()].sort(
-    (a, b) => Date.parse(b.pushedAt) - Date.parse(a.pushedAt),
-  );
+  if (uniqueRepos.size > 0) {
+    return [...uniqueRepos.values()].sort(
+      (a, b) => Date.parse(b.pushedAt) - Date.parse(a.pushedAt),
+    );
+  }
+
+  if (githubUsername) {
+    const publicRepos = await fetchPublicReposForUsername(githubUsername);
+
+    return publicRepos.sort(
+      (a, b) => Date.parse(b.pushedAt) - Date.parse(a.pushedAt),
+    );
+  }
+
+  return [];
 }

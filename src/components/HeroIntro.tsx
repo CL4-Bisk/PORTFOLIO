@@ -14,14 +14,15 @@ type StatusDetail = {
 };
 type StatusContent = {
   label: string;
-  shortLabel: string;
   image: string;
   imageAlt: string;
   summary: string;
   glow: string;
   dot: string;
-  active: string;
   details: StatusDetail[];
+};
+type PublicStatusConfig = {
+  status?: unknown;
 };
 
 const defaultStatus: StatusKey = "available";
@@ -29,13 +30,11 @@ const stack = ["Next.js", "React", "TypeScript", "APIs", "UI Systems"];
 const statusOptions = {
   available: {
     label: "Available to build",
-    shortLabel: "Build",
     image: "/assets/status/status-available.svg",
     imageAlt: "Light bulb with a check mark",
     summary: "Open for portfolio work, useful tools, and clean web apps.",
     glow: "drop-shadow-[0_0_22px_rgba(216,165,25,0.45)]",
     dot: "bg-accent",
-    active: "border-accent bg-accent-soft text-accent-strong",
     details: [
       { label: "Current focus", value: "New builds and portfolio polish" },
       { label: "Reply pace", value: "Fast when the brief is clear" },
@@ -44,13 +43,11 @@ const statusOptions = {
   },
   busy: {
     label: "Busy",
-    shortLabel: "Busy",
     image: "/assets/status/status-busy.svg",
     imageAlt: "Calendar with a busy marker",
     summary: "Queued up with commitments and slower replies.",
     glow: "drop-shadow-[0_0_20px_rgba(240,138,172,0.35)]",
     dot: "bg-accent-alt",
-    active: "border-accent-alt bg-pink-50 text-pink-700 dark:bg-pink-950/30 dark:text-pink-200",
     details: [
       { label: "Current focus", value: "Deadlines and queued tasks" },
       { label: "Reply pace", value: "Slower than usual" },
@@ -59,43 +56,37 @@ const statusOptions = {
   },
   working: {
     label: "Working",
-    shortLabel: "Work",
     image: "/assets/status/status-working.svg",
     imageAlt: "Laptop with code brackets",
     summary: "In implementation mode, building and debugging.",
     glow: "drop-shadow-[0_0_20px_rgba(39,124,104,0.35)]",
     dot: "bg-emerald-500",
-    active: "border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200",
     details: [
-      { label: "Current focus", value: "Implementation and fixes" },
+      { label: "Current focus", value: "Company work, implementation and fixes" },
       { label: "Reply pace", value: "Best after a work block" },
       { label: "Energy", value: "Deep work" },
     ],
   },
   learning: {
     label: "Learning",
-    shortLabel: "Learn",
     image: "/assets/status/status-learning.svg",
     imageAlt: "Open book with a graduation cap",
     summary: "Studying docs, patterns, and experiments.",
     glow: "drop-shadow-[0_0_20px_rgba(216,165,25,0.3)]",
     dot: "bg-yellow-500",
-    active: "border-yellow-500 bg-yellow-50 text-yellow-800 dark:bg-yellow-950/30 dark:text-yellow-200",
     details: [
-      { label: "Current focus", value: "Research and practice" },
+      { label: "Current focus", value: "Research and practice, aiming to graduate college" },
       { label: "Reply pace", value: "Available between sessions" },
       { label: "Energy", value: "Building range" },
     ],
   },
   vacay: {
-    label: "Vacay",
-    shortLabel: "Vacay",
+    label: "On Vacation",
     image: "/assets/status/status-vacay.svg",
     imageAlt: "Sun and beach umbrella",
     summary: "Offline or resting, back after the break.",
     glow: "drop-shadow-[0_0_22px_rgba(119,210,178,0.35)]",
     dot: "bg-teal-400",
-    active: "border-teal-500 bg-teal-50 text-teal-800 dark:bg-teal-950/30 dark:text-teal-200",
     details: [
       { label: "Current focus", value: "Rest and reset" },
       { label: "Reply pace", value: "Mostly offline" },
@@ -105,6 +96,11 @@ const statusOptions = {
 } satisfies Record<StatusKey, StatusContent>;
 
 const statusKeys = Object.keys(statusOptions) as StatusKey[];
+const publicStatusPath = `${basePath}/status.json`;
+
+function isStatusKey(value: unknown): value is StatusKey {
+  return typeof value === "string" && value in statusOptions;
+}
 
 export function HeroIntro() {
   const root = useRef<HTMLElement | null>(null);
@@ -143,6 +139,32 @@ export function HeroIntro() {
     return () => {
       scope.current?.revert();
       scope.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadPublicStatus() {
+      try {
+        const response = await fetch(publicStatusPath, { cache: "no-store" });
+
+        if (!response.ok) return;
+
+        const config = (await response.json()) as PublicStatusConfig;
+
+        if (isActive && isStatusKey(config.status)) {
+          setStatusKey(config.status);
+        }
+      } catch {
+        // Keep the default status if the public JSON file is unavailable.
+      }
+    }
+
+    void loadPublicStatus();
+
+    return () => {
+      isActive = false;
     };
   }, []);
 
@@ -210,36 +232,6 @@ export function HeroIntro() {
                 className={`size-20 ${status.glow}`}
               />
             </div>
-          </div>
-
-          <div
-            aria-label="Choose status"
-            className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3"
-          >
-            {statusKeys.map((key) => {
-              const option = statusOptions[key];
-              const isSelected = key === statusKey;
-
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  aria-pressed={isSelected}
-                  onClick={() => setStatusKey(key)}
-                  className={`inline-flex h-10 items-center justify-center gap-2 rounded-md border px-3 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                    isSelected
-                      ? option.active
-                      : "border-line bg-panel text-muted hover:border-accent hover:bg-panel-muted hover:text-foreground"
-                  }`}
-                >
-                  <span
-                    aria-hidden="true"
-                    className={`size-2 rounded-full ${option.dot}`}
-                  />
-                  {option.shortLabel}
-                </button>
-              );
-            })}
           </div>
 
           <dl className="mt-5 space-y-4">

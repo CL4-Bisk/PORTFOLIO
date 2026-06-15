@@ -57,7 +57,6 @@ The current build has a shared app shell, fixed header/footer, animated hero wit
 ## Project Structure
 
 ```txt
-.
 ├── .github/
 │   └── workflows/
 │       └── pages.yml              GitHub Pages deployment workflow

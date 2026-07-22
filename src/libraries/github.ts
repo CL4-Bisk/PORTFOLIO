@@ -18,6 +18,31 @@ type GithubRepo = {
   owner: { login: string };
 };
 
+type GithubContributor = {
+  id: number;
+  login: string | null;
+  avatar_url: string | null;
+  html_url: string | null;
+  contributions: number;
+  type: string;
+};
+
+type GithubContributorWithProfile = GithubContributor & {
+  login: string;
+  avatar_url: string;
+  html_url: string;
+};
+
+export type PortfolioContributor = {
+  id: number;
+  login: string;
+  avatarUrl: string;
+  profileUrl: string;
+  contributions: number;
+  role: "Maintainer" | "Contributor";
+  isCurrentUser: boolean;
+};
+
 export type PortfolioRepo = {
   id: number;
   name: string;
@@ -32,6 +57,7 @@ export type PortfolioRepo = {
   stars: number;
   forks: number;
   pushedAt: string;
+  contributors: PortfolioContributor[];
 };
 
 const tokens = [
@@ -63,7 +89,53 @@ function githubHeaders(token?: string) {
   return headers;
 }
 
-function toPortfolioRepo(repo: GithubRepo): PortfolioRepo {
+function hasContributorProfile(
+  contributor: GithubContributor,
+): contributor is GithubContributorWithProfile {
+  return Boolean(
+    contributor.login?.trim() &&
+      contributor.avatar_url?.trim() &&
+      contributor.html_url?.trim(),
+  );
+}
+
+export function mapGithubContributorsForPortfolio(
+  contributors: GithubContributor[],
+  currentUsername = githubUsername,
+) {
+  const currentLogin = currentUsername?.trim().toLowerCase();
+
+  return contributors
+    .filter((contributor) => contributor.type !== "Bot")
+    .filter(hasContributorProfile)
+    .map((contributor) => {
+      const isCurrentUser =
+        Boolean(currentLogin) &&
+        contributor.login.toLowerCase() === currentLogin;
+
+      return {
+        id: contributor.id,
+        login: contributor.login,
+        avatarUrl: contributor.avatar_url,
+        profileUrl: contributor.html_url,
+        contributions: contributor.contributions,
+        role: isCurrentUser ? "Maintainer" : "Contributor",
+        isCurrentUser,
+      } satisfies PortfolioContributor;
+    })
+    .sort((a, b) => {
+      if (a.isCurrentUser !== b.isCurrentUser) {
+        return a.isCurrentUser ? -1 : 1;
+      }
+
+      return b.contributions - a.contributions || a.login.localeCompare(b.login);
+    });
+}
+
+function toPortfolioRepo(
+  repo: GithubRepo,
+  contributors: PortfolioContributor[] = [],
+): PortfolioRepo {
   return {
     id: repo.id,
     name: repo.name,
@@ -78,11 +150,51 @@ function toPortfolioRepo(repo: GithubRepo): PortfolioRepo {
     stars: repo.stargazers_count,
     forks: repo.forks_count,
     pushedAt: repo.pushed_at,
+    contributors,
   };
 }
 
 function shouldShowRepo(repo: GithubRepo) {
   return !repo.archived && !repo.fork;
+}
+
+async function fetchContributorsForRepo(
+  owner: string,
+  repo: string,
+  token?: string,
+) {
+  const response = await fetch(
+    `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contributors?per_page=100`,
+    {
+      headers: githubHeaders(token),
+      next: { revalidate: 3600 },
+    },
+  );
+
+  if (response.status === 204 || !response.ok) {
+    return [];
+  }
+
+  const contributors = (await response.json()) as unknown;
+
+  if (!Array.isArray(contributors)) {
+    return [];
+  }
+
+  return mapGithubContributorsForPortfolio(contributors).slice(0, 8);
+}
+
+async function toPortfolioRepoWithContributors(
+  repo: GithubRepo,
+  token?: string,
+) {
+  const contributors = await fetchContributorsForRepo(
+    repo.owner.login,
+    repo.name,
+    token,
+  );
+
+  return toPortfolioRepo(repo, contributors);
 }
 
 async function fetchReposForToken(token: string): Promise<PortfolioRepo[]> {
@@ -100,7 +212,11 @@ async function fetchReposForToken(token: string): Promise<PortfolioRepo[]> {
 
   const repos: GithubRepo[] = await response.json();
 
-  return repos.filter(shouldShowRepo).map(toPortfolioRepo);
+  return Promise.all(
+    repos
+      .filter(shouldShowRepo)
+      .map((repo) => toPortfolioRepoWithContributors(repo, token)),
+  );
 }
 
 async function fetchPublicReposForUsername(
@@ -122,7 +238,11 @@ async function fetchPublicReposForUsername(
 
   const repos: GithubRepo[] = await response.json();
 
-  return repos.filter(shouldShowRepo).map(toPortfolioRepo);
+  return Promise.all(
+    repos
+      .filter(shouldShowRepo)
+      .map((repo) => toPortfolioRepoWithContributors(repo)),
+  );
 }
 
 async function fetchAllowedRepo(fullName: string): Promise<PortfolioRepo> {
@@ -153,7 +273,7 @@ async function fetchAllowedRepo(fullName: string): Promise<PortfolioRepo> {
         );
       }
 
-      return toPortfolioRepo(githubRepo);
+      return toPortfolioRepoWithContributors(githubRepo, token);
     }
   }
 

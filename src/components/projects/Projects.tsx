@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import type { PortfolioRepo } from "@/libraries/github";
 
 type ProjectsProps = {
@@ -41,6 +43,8 @@ const fallbackLanguageTone: LanguageTone = {
   label: "text-muted",
 };
 
+const visibleContributorCount = 4;
+
 const compactNumberFormatter = new Intl.NumberFormat("en", {
   notation: "compact",
 });
@@ -69,6 +73,77 @@ function getLanguageTone(language: string | null) {
   if (!language) return fallbackLanguageTone;
 
   return languageTones[language] ?? fallbackLanguageTone;
+}
+
+function getCreditsLabel(repo: PortfolioRepo) {
+  const [firstContributor] = repo.contributors;
+
+  if (!firstContributor) {
+    return null;
+  }
+
+  const otherCount = repo.contributors.length - 1;
+
+  if (otherCount === 0) {
+    return `${firstContributor.login} credited`;
+  }
+
+  return `${firstContributor.login} and ${otherCount} more credited`;
+}
+
+function ContributorCredits({ repo }: { repo: PortfolioRepo }) {
+  if (repo.contributors.length === 0) {
+    return null;
+  }
+
+  const visibleContributors = repo.contributors.slice(0, visibleContributorCount);
+  const hiddenContributorCount =
+    repo.contributors.length - visibleContributors.length;
+  const creditsLabel = getCreditsLabel(repo);
+
+  return (
+    <div className="mt-6 border-t border-line pt-4">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted">
+        Built by
+      </p>
+      <div className="mt-3 flex min-w-0 items-center justify-between gap-3">
+        <div className="flex shrink-0 -space-x-2">
+          {visibleContributors.map((contributor) => (
+            <a
+              key={contributor.id}
+              href={contributor.profileUrl}
+              target="_blank"
+              rel="noreferrer"
+              title={`${contributor.login} - ${contributor.role}, ${formatNumber(contributor.contributions)} commits`}
+              aria-label={`Open ${contributor.login}'s GitHub profile`}
+              className="block rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              <Image
+                src={contributor.avatarUrl}
+                alt=""
+                width={36}
+                height={36}
+                unoptimized
+                className="size-9 rounded-full border-2 border-panel bg-panel-muted object-cover"
+              />
+            </a>
+          ))}
+
+          {hiddenContributorCount > 0 ? (
+            <span className="flex size-9 items-center justify-center rounded-full border-2 border-panel bg-panel-muted font-mono text-xs text-muted">
+              +{hiddenContributorCount}
+            </span>
+          ) : null}
+        </div>
+
+        {creditsLabel ? (
+          <p className="min-w-0 truncate text-right text-xs text-muted">
+            {creditsLabel}
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
 }
 
 export default function Projects({ repos }: ProjectsProps) {
@@ -165,6 +240,8 @@ export default function Projects({ repos }: ProjectsProps) {
                     <p className="mt-4 break-words text-sm leading-6 text-muted">
                       {description}
                     </p>
+
+                    <ContributorCredits repo={repo} />
 
                     <dl className="mt-6 grid grid-cols-2 gap-3 text-sm">
                       <div className="border-t border-line pt-3">

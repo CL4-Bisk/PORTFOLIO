@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- README images are arbitrary remote content without known dimensions; this static export uses unoptimized remote images. */
 import ReactMarkdown from "react-markdown";
+import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 
 import type { PortfolioRepo } from "@/libraries/github";
@@ -59,27 +60,62 @@ export function RepositoryReadme({ repo }: RepositoryReadmeProps) {
 
       <div className="min-w-0 text-sm leading-7 text-muted">
         <ReactMarkdown
+          rehypePlugins={[rehypeSlug]}
           remarkPlugins={[remarkGfm]}
           components={{
-            h1: ({ children }) => (
-              <h1 className="mb-5 mt-10 text-3xl font-semibold leading-tight tracking-tight text-foreground first:mt-0 sm:text-4xl">
+            h1: ({ node, children, ...props }) => (
+              <h3
+                {...props}
+                className="mb-5 mt-10 text-3xl font-semibold leading-tight tracking-tight text-foreground first:mt-0 sm:text-4xl"
+              >
                 {children}
-              </h1>
-            ),
-            h2: ({ children }) => (
-              <h2 className="mb-4 mt-10 text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
-                {children}
-              </h2>
-            ),
-            h3: ({ children }) => (
-              <h3 className="mb-3 mt-8 text-xl font-semibold leading-tight text-foreground">
-                {children}
+                {void node}
               </h3>
             ),
-            h4: ({ children }) => (
-              <h4 className="mb-3 mt-7 text-lg font-semibold leading-tight text-foreground">
+            h2: ({ node, children, ...props }) => (
+              <h4
+                {...props}
+                className="mb-4 mt-10 text-2xl font-semibold leading-tight text-foreground sm:text-3xl"
+              >
                 {children}
+                {void node}
               </h4>
+            ),
+            h3: ({ node, children, ...props }) => (
+              <h5
+                {...props}
+                className="mb-3 mt-8 text-xl font-semibold leading-tight text-foreground"
+              >
+                {children}
+                {void node}
+              </h5>
+            ),
+            h4: ({ node, children, ...props }) => (
+              <h6
+                {...props}
+                className="mb-3 mt-7 text-lg font-semibold leading-tight text-foreground"
+              >
+                {children}
+                {void node}
+              </h6>
+            ),
+            h5: ({ node, children, ...props }) => (
+              <h6
+                {...props}
+                className="mb-3 mt-7 text-base font-semibold leading-tight text-foreground"
+              >
+                {children}
+                {void node}
+              </h6>
+            ),
+            h6: ({ node, children, ...props }) => (
+              <h6
+                {...props}
+                className="mb-3 mt-7 text-sm font-semibold leading-tight text-foreground"
+              >
+                {children}
+                {void node}
+              </h6>
             ),
             p: ({ children }) => <p className="my-5">{children}</p>,
             ul: ({ children }) => (

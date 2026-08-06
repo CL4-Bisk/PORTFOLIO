@@ -1,150 +1,11 @@
-import Image from "next/image";
-
 import type { PortfolioRepo } from "@/libraries/github";
+
+import { ProjectCard } from "./ProjectCard";
+import { formatNumber } from "./project-formatters";
 
 type ProjectsProps = {
   repos: PortfolioRepo[];
 };
-
-type LanguageTone = {
-  dot: string;
-  label: string;
-};
-
-const languageTones: Record<string, LanguageTone> = {
-  TypeScript: {
-    dot: "bg-sky-400",
-    label: "text-sky-700 dark:text-sky-300",
-  },
-  JavaScript: {
-    dot: "bg-yellow-400",
-    label: "text-yellow-700 dark:text-yellow-300",
-  },
-  Python: {
-    dot: "bg-emerald-500",
-    label: "text-emerald-700 dark:text-emerald-300",
-  },
-  CSS: {
-    dot: "bg-blue-500",
-    label: "text-blue-700 dark:text-blue-300",
-  },
-  HTML: {
-    dot: "bg-orange-500",
-    label: "text-orange-700 dark:text-orange-300",
-  },
-  Java: {
-    dot: "bg-red-500",
-    label: "text-red-700 dark:text-red-300",
-  },
-};
-
-const fallbackLanguageTone: LanguageTone = {
-  dot: "bg-muted",
-  label: "text-muted",
-};
-
-const visibleContributorCount = 4;
-
-const compactNumberFormatter = new Intl.NumberFormat("en", {
-  notation: "compact",
-});
-
-const dateFormatter = new Intl.DateTimeFormat("en", {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-});
-
-function formatNumber(value: number) {
-  return compactNumberFormatter.format(value);
-}
-
-function formatUpdatedDate(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.valueOf())) {
-    return "Recently";
-  }
-
-  return dateFormatter.format(date);
-}
-
-function getLanguageTone(language: string | null) {
-  if (!language) return fallbackLanguageTone;
-
-  return languageTones[language] ?? fallbackLanguageTone;
-}
-
-function getCreditsLabel(repo: PortfolioRepo) {
-  const [firstContributor] = repo.contributors;
-
-  if (!firstContributor) {
-    return null;
-  }
-
-  const otherCount = repo.contributors.length - 1;
-
-  if (otherCount === 0) {
-    return `${firstContributor.login} credited`;
-  }
-
-  return `${firstContributor.login} and ${otherCount} more credited`;
-}
-
-function ContributorCredits({ repo }: { repo: PortfolioRepo }) {
-  if (repo.contributors.length === 0) {
-    return null;
-  }
-
-  const visibleContributors = repo.contributors.slice(0, visibleContributorCount);
-  const hiddenContributorCount =
-    repo.contributors.length - visibleContributors.length;
-  const creditsLabel = getCreditsLabel(repo);
-
-  return (
-    <div className="mt-6 border-t border-line pt-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">
-        Built by
-      </p>
-      <div className="mt-3 flex min-w-0 items-center justify-between gap-3">
-        <div className="flex shrink-0 -space-x-2">
-          {visibleContributors.map((contributor) => (
-            <a
-              key={contributor.id}
-              href={contributor.profileUrl}
-              target="_blank"
-              rel="noreferrer"
-              title={`${contributor.login} - ${contributor.role}, ${formatNumber(contributor.contributions)} commits`}
-              aria-label={`Open ${contributor.login}'s GitHub profile`}
-              className="block rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-            >
-              <Image
-                src={contributor.avatarUrl}
-                alt=""
-                width={36}
-                height={36}
-                unoptimized
-                className="size-9 rounded-full border-2 border-panel bg-panel-muted object-cover"
-              />
-            </a>
-          ))}
-
-          {hiddenContributorCount > 0 ? (
-            <span className="flex size-9 items-center justify-center rounded-full border-2 border-panel bg-panel-muted font-mono text-xs text-muted">
-              +{hiddenContributorCount}
-            </span>
-          ) : null}
-        </div>
-
-        {creditsLabel ? (
-          <p className="min-w-0 truncate text-right text-xs text-muted">
-            {creditsLabel}
-          </p>
-        ) : null}
-      </div>
-    </div>
-  );
-}
 
 export default function Projects({ repos }: ProjectsProps) {
   const languages = new Set(
@@ -184,10 +45,7 @@ export default function Projects({ repos }: ProjectsProps) {
 
           <dl className="grid grid-cols-2 gap-3">
             {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="border-t border-line pt-4"
-              >
+              <div key={stat.label} className="border-t border-line pt-4">
                 <dt className="text-sm text-muted">{stat.label}</dt>
                 <dd className="mt-2 font-mono text-2xl font-semibold">
                   {stat.value}
@@ -208,114 +66,11 @@ export default function Projects({ repos }: ProjectsProps) {
         ) : (
           <section
             aria-label="Project list"
-            className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+            className="grid auto-rows-fr grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
           >
-            {repos.map((repo) => {
-              const languageTone = getLanguageTone(repo.language);
-              const description =
-                repo.description ??
-                "Repository notes, implementation details, and project context are available from the source.";
-
-              return (
-                <article
-                  key={repo.id}
-                  className="group flex min-h-[23rem] min-w-0 flex-col justify-between rounded-lg border border-line bg-panel p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-accent hover:shadow-md"
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <p className="break-all font-mono text-xs text-muted">
-                          {repo.owner}
-                        </p>
-                        <h2 className="mt-2 break-words text-xl font-semibold">
-                          {repo.name}
-                        </h2>
-                      </div>
-
-                      <span className="shrink-0 rounded-md border border-line bg-panel-muted px-2.5 py-1 text-xs text-muted">
-                        {repo.private ? "Private" : "Public"}
-                      </span>
-                    </div>
-
-                    <p className="mt-4 break-words text-sm leading-6 text-muted">
-                      {description}
-                    </p>
-
-                    <ContributorCredits repo={repo} />
-
-                    <dl className="mt-6 grid grid-cols-2 gap-3 text-sm">
-                      <div className="border-t border-line pt-3">
-                        <dt className="text-muted">Language</dt>
-                        <dd
-                          className={`mt-2 flex items-center gap-2 font-medium ${languageTone.label}`}
-                        >
-                          <span
-                            aria-hidden="true"
-                            className={`size-2 rounded-full ${languageTone.dot}`}
-                          />
-                          {repo.language ?? "Mixed"}
-                        </dd>
-                      </div>
-
-                      <div className="border-t border-line pt-3">
-                        <dt className="text-muted">Updated</dt>
-                        <dd className="mt-2 font-medium">
-                          {formatUpdatedDate(repo.pushedAt)}
-                        </dd>
-                      </div>
-
-                      <div className="border-t border-line pt-3">
-                        <dt className="text-muted">Stars</dt>
-                        <dd className="mt-2 font-mono font-medium">
-                          {formatNumber(repo.stars)}
-                        </dd>
-                      </div>
-
-                      <div className="border-t border-line pt-3">
-                        <dt className="text-muted">Forks</dt>
-                        <dd className="mt-2 font-mono font-medium">
-                          {formatNumber(repo.forks)}
-                        </dd>
-                      </div>
-                    </dl>
-                  </div>
-
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    <a
-                      href={repo.githubUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`Open ${repo.name} source repository`}
-                      className="inline-flex h-10 items-center justify-center rounded-md border border-line bg-panel px-3 text-sm font-medium transition hover:border-accent hover:bg-accent-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                    >
-                      Repository
-                    </a>
-
-                    {repo.websiteUrl ? (
-                      <a
-                        href={repo.websiteUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label={`Open ${repo.name} live site`}
-                        className="inline-flex h-10 items-center justify-center rounded-md bg-foreground px-3 text-sm font-medium text-background transition hover:bg-accent-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                      >
-                        Live
-                      </a>
-                    ) : null}
-
-                    <a
-                      href={`${repo.githubUrl}#readme`}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`Open ${repo.name} README on GitHub`}
-                      className="inline-flex h-10 items-center justify-center rounded-md border border-line bg-panel px-3 text-sm font-medium transition hover:border-accent hover:bg-panel-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                    >
-                      README
-                    </a>
-                  </div>
-                </article>
-              );
-            })}
+            {repos.map((repo) => (
+              <ProjectCard key={repo.id} repo={repo} />
+            ))}
           </section>
         )}
       </div>

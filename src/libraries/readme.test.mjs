@@ -50,3 +50,29 @@ test("keeps same-document anchors and rejects unsafe schemes", () => {
   assert.equal(resolveReadmeUrl("javascript:alert(1)", context, "link"), "");
   assert.equal(resolveReadmeUrl("data:text/html,bad", context, "image"), "");
 });
+
+test("marks external README links for a new tab", () => {
+  const { getReadmeLinkAttributes } = loadReadmeModule();
+  assert.deepEqual(
+    getReadmeLinkAttributes("https://example.com/docs", context),
+    {
+      href: "https://example.com/docs",
+      target: "_blank",
+      rel: "noreferrer noopener",
+    },
+  );
+});
+
+test("keeps README anchors in the current page", () => {
+  const { getReadmeLinkAttributes } = loadReadmeModule();
+  assert.deepEqual(getReadmeLinkAttributes("#setup", context), {
+    href: "#setup",
+    target: undefined,
+    rel: undefined,
+  });
+});
+
+test("returns null for unsafe README links", () => {
+  const { getReadmeLinkAttributes } = loadReadmeModule();
+  assert.equal(getReadmeLinkAttributes("javascript:alert(1)", context), null);
+});

@@ -42,3 +42,19 @@ export function resolveReadmeUrl(
     return "";
   }
 }
+
+export function getReadmeLinkAttributes(
+  value: string,
+  context: ReadmeUrlContext,
+) {
+  const href = resolveReadmeUrl(value, context, "link");
+
+  if (!href) return null;
+
+  const external = !href.startsWith("#");
+  return {
+    href,
+    target: external ? "_blank" : undefined,
+    rel: external ? "noreferrer noopener" : undefined,
+  } as const;
+}

@@ -57,7 +57,7 @@ export function ContributorCredits({
                 key={contributor.id}
                 href={contributor.profileUrl}
                 target="_blank"
-                rel="noreferrer"
+                rel="noreferrer noopener"
                 title={`${contributor.login} - ${contributor.role}, ${formatNumber(contributor.contributions)} commits`}
                 aria-label={`Open ${contributor.login}'s GitHub profile`}
                 className="relative z-10 block rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"

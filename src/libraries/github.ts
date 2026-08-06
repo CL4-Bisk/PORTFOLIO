@@ -43,6 +43,26 @@ export type PortfolioContributor = {
   isCurrentUser: boolean;
 };
 
+export type PortfolioLanguage = {
+  name: string;
+  bytes: number;
+  percentage: number;
+};
+
+export type PortfolioRelease = {
+  name: string;
+  tagName: string;
+  publishedAt: string;
+  url: string;
+};
+
+export type PortfolioRepoDetails = {
+  readmeMarkdown: string | null;
+  readmePath: string | null;
+  languageBreakdown: PortfolioLanguage[];
+  latestRelease: PortfolioRelease | null;
+};
+
 export type PortfolioRepo = {
   id: number;
   name: string;
@@ -58,6 +78,17 @@ export type PortfolioRepo = {
   forks: number;
   pushedAt: string;
   contributors: PortfolioContributor[];
+  readmeMarkdown: string | null;
+  readmePath: string | null;
+  languageBreakdown: PortfolioLanguage[];
+  latestRelease: PortfolioRelease | null;
+};
+
+const emptyPortfolioRepoDetails: PortfolioRepoDetails = {
+  readmeMarkdown: null,
+  readmePath: null,
+  languageBreakdown: [],
+  latestRelease: null,
 };
 
 const tokens = [
@@ -132,9 +163,27 @@ export function mapGithubContributorsForPortfolio(
     });
 }
 
+export function mapGithubLanguagesForPortfolio(
+  languages: Record<string, number>,
+): PortfolioLanguage[] {
+  const total = Object.values(languages).reduce((sum, bytes) => sum + bytes, 0);
+
+  if (total <= 0) return [];
+
+  return Object.entries(languages)
+    .filter(([, bytes]) => Number.isFinite(bytes) && bytes > 0)
+    .map(([name, bytes]) => ({
+      name,
+      bytes,
+      percentage: Math.round((bytes / total) * 1000) / 10,
+    }))
+    .sort((a, b) => b.bytes - a.bytes || a.name.localeCompare(b.name));
+}
+
 function toPortfolioRepo(
   repo: GithubRepo,
   contributors: PortfolioContributor[] = [],
+  details: PortfolioRepoDetails = emptyPortfolioRepoDetails,
 ): PortfolioRepo {
   return {
     id: repo.id,
@@ -151,6 +200,10 @@ function toPortfolioRepo(
     forks: repo.forks_count,
     pushedAt: repo.pushed_at,
     contributors,
+    readmeMarkdown: details.readmeMarkdown,
+    readmePath: details.readmePath,
+    languageBreakdown: details.languageBreakdown,
+    latestRelease: details.latestRelease,
   };
 }
 
@@ -184,17 +237,149 @@ async function fetchContributorsForRepo(
   return mapGithubContributorsForPortfolio(contributors).slice(0, 8);
 }
 
+type GithubReadme = {
+  content?: unknown;
+  encoding?: unknown;
+  path?: unknown;
+};
+
+type GithubLatestRelease = {
+  name?: unknown;
+  tag_name?: unknown;
+  published_at?: unknown;
+  html_url?: unknown;
+};
+
+async function fetchReadmeDetails(
+  url: string,
+  options: RequestInit,
+  request: typeof fetch,
+) {
+  try {
+    const response = await request(url, options);
+
+    if (response.status === 204 || !response.ok) {
+      return null;
+    }
+
+    const readme = (await response.json()) as GithubReadme;
+
+    if (
+      readme.encoding !== "base64" ||
+      typeof readme.content !== "string" ||
+      typeof readme.path !== "string"
+    ) {
+      return null;
+    }
+
+    return {
+      markdown: Buffer.from(readme.content.replace(/[\r\n]/g, ""), "base64").toString(
+        "utf8",
+      ),
+      path: readme.path,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function fetchLanguageDetails(
+  url: string,
+  options: RequestInit,
+  request: typeof fetch,
+) {
+  try {
+    const response = await request(url, options);
+
+    if (response.status === 204 || !response.ok) {
+      return [];
+    }
+
+    const languages = await response.json();
+
+    if (!languages || typeof languages !== "object" || Array.isArray(languages)) {
+      return [];
+    }
+
+    return mapGithubLanguagesForPortfolio(languages as Record<string, number>);
+  } catch {
+    return [];
+  }
+}
+
+async function fetchLatestRelease(
+  url: string,
+  options: RequestInit,
+  request: typeof fetch,
+) {
+  try {
+    const response = await request(url, options);
+
+    if (response.status === 204 || !response.ok) {
+      return null;
+    }
+
+    const release = (await response.json()) as GithubLatestRelease;
+
+    if (
+      typeof release.tag_name !== "string" ||
+      typeof release.html_url !== "string" ||
+      typeof release.published_at !== "string"
+    ) {
+      return null;
+    }
+
+    return {
+      name:
+        typeof release.name === "string" && release.name
+          ? release.name
+          : release.tag_name,
+      tagName: release.tag_name,
+      publishedAt: release.published_at,
+      url: release.html_url,
+    } satisfies PortfolioRelease;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchPortfolioRepoDetails(
+  repo: { owner: string; name: string; private: boolean },
+  token?: string,
+  request: typeof fetch = fetch,
+): Promise<PortfolioRepoDetails> {
+  if (repo.private) return { ...emptyPortfolioRepoDetails };
+
+  const root = `https://api.github.com/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.name)}`;
+  const options = { headers: githubHeaders(token), next: { revalidate: 3600 } };
+
+  const [readme, languages, release] = await Promise.all([
+    fetchReadmeDetails(`${root}/readme`, options, request),
+    fetchLanguageDetails(`${root}/languages`, options, request),
+    fetchLatestRelease(`${root}/releases/latest`, options, request),
+  ]);
+
+  return {
+    readmeMarkdown: readme?.markdown ?? null,
+    readmePath: readme?.path ?? null,
+    languageBreakdown: languages,
+    latestRelease: release,
+  };
+}
+
 async function toPortfolioRepoWithContributors(
   repo: GithubRepo,
   token?: string,
 ) {
-  const contributors = await fetchContributorsForRepo(
-    repo.owner.login,
-    repo.name,
-    token,
-  );
+  const [contributors, details] = await Promise.all([
+    fetchContributorsForRepo(repo.owner.login, repo.name, token),
+    fetchPortfolioRepoDetails(
+      { owner: repo.owner.login, name: repo.name, private: repo.private },
+      token,
+    ),
+  ]);
 
-  return toPortfolioRepo(repo, contributors);
+  return toPortfolioRepo(repo, contributors, details);
 }
 
 async function fetchReposForToken(token: string): Promise<PortfolioRepo[]> {

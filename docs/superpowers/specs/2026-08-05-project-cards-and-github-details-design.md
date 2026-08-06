@@ -1,7 +1,7 @@
 # Project Card Consistency and GitHub-First Detail Pages
 
 **Date:** August 5, 2026
-**Status:** Approved design, pending written-spec review
+**Status:** Approved for implementation
 
 ## Context
 
@@ -85,6 +85,7 @@ Private repositories receive a metadata-only detail page using fields that are a
 `PortfolioRepo` is expanded with detail-page fields while keeping the card fields stable:
 
 - `readmeMarkdown: string | null`
+- `readmePath: string | null`
 - `languageBreakdown: Array<{ name: string; bytes: number; percentage: number }>`
 - `latestRelease: { name: string; tagName: string; publishedAt: string; url: string } | null`
 
@@ -94,7 +95,7 @@ Public-repository data is fetched read-only during the static build:
 
 - repository metadata from GitHub’s repository endpoint;
 - contributors from the existing contributors endpoint;
-- README Markdown from the repository README endpoint using the raw media type;
+- README Markdown and its repository path from the repository README endpoint, decoding its base64 content so relative links can be resolved correctly;
 - languages from the repository languages endpoint;
 - latest release from the latest-release endpoint.
 

@@ -13,6 +13,10 @@
 # testing
 /coverage
 
+# local Codex worktrees and review scratch
+/.worktrees/
+/.superpowers/
+
 # next.js
 /.next/
 /out/

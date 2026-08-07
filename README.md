@@ -2,13 +2,13 @@
 
 A work-in-progress developer portfolio built with Next.js App Router, React, TypeScript, Tailwind CSS, Anime.js, TanStack Query, GitHub repository data, public status assets, and a browser-based weather forecast widget.
 
-The current build has a shared app shell, fixed header/footer, animated hero with a public status card, a persisted light/dark theme toggle, an About page, a GitHub-backed Projects page, a geolocation weather card, static export configuration, and a GitHub Pages deployment workflow.
+The current build has a shared app shell, fixed header/footer, animated hero with a public status card, a persisted light/dark theme toggle, an About page, a GitHub-backed Projects index, static repository detail pages, safe GitHub README rendering, a geolocation weather card, static export configuration, and a GitHub Pages deployment workflow.
 
 ## Current Progress
 
 ### Completed
 
-- [x] Created the App Router base with `src/app/layout.tsx`, `src/app/page.tsx`, `/about`, and `/projects`.
+- [x] Created the App Router base with `src/app/layout.tsx`, `src/app/page.tsx`, `/about`, `/projects`, and `/projects/[owner]/[repo]`.
 - [x] Moved the app shell into the root layout with shared `Header`, `Footer`, `Providers`, metadata, and a central `<main>` wrapper.
 - [x] Wired global styling through `public/global/globals.css`.
 - [x] Set up Tailwind CSS v4 theme tokens, custom dark variant support, semantic color tokens, selection styling, and reduced-motion CSS.
@@ -23,22 +23,29 @@ The current build has a shared app shell, fixed header/footer, animated hero wit
 - [x] Added reduced-motion handling for the animation setup.
 - [x] Replaced the About placeholder with real portfolio copy, strengths, toolset chips, focus areas, and a Projects CTA.
 - [x] Replaced the Projects placeholder with a GitHub-backed project board.
-- [x] Added repository stats, language styling, live/repository/README links, and an empty state for projects.
-- [x] Added `src/libraries/github.ts` for GitHub API fetching, token support, username fallback, allowlisted repositories, repo deduping, archived/fork filtering, and pushed-date sorting.
+- [x] Split the Projects UI into focused card, contributor, formatter, detail, and README-rendering components.
+- [x] Added consistent-height project cards with internal detail navigation, contributor credits, repository facts, and separate external Repository/Live actions.
+- [x] Added static repository detail pages with `generateStaticParams`, `dynamicParams = false`, and per-project metadata.
+- [x] Added GitHub README rendering with GitHub-flavored Markdown, heading slugs, tables, code blocks, safe links, and safe relative image/link resolution.
+- [x] Added repository detail panels for visibility, default branch, contributors, last updated date, stars, forks, language breakdowns, latest release, and optional live links.
+- [x] Added `src/libraries/github.ts` for GitHub API fetching, token support, username fallback, allowlisted repositories, repo deduping, archived/fork filtering, contributor loading, README loading, language breakdowns, release loading, and pushed-date sorting.
+- [x] Added `src/libraries/project-routes.ts` for encoded detail paths, static params, and route lookup.
+- [x] Added `src/libraries/readme.ts` for README URL safety and URL rebasing.
 - [x] Added a weather card that auto-loads from browser geolocation, falls back to Iloilo coordinates, and uses current Open-Meteo field names.
 - [x] Added loading placeholders, error messaging, and rounded weather metric values.
 - [x] Added `.env.example` placeholders for weather and GitHub-backed project data.
-- [x] Configured static export in `next.config.ts` with optional `NEXT_PUBLIC_BASE_PATH`, trailing slashes, unoptimized images, React Compiler, and Turbopack root.
+- [x] Configured static export in `next.config.ts` with optional `NEXT_PUBLIC_BASE_PATH`, trailing slashes, unoptimized images, GitHub avatar remote patterns, React Compiler, and Turbopack root.
 - [x] Added a GitHub Pages workflow in `.github/workflows/pages.yml` that builds with Node 22 and deploys `./out`.
+- [x] Added implementation/design notes under `docs/superpowers` for the GitHub-first project detail feature.
 
 ### In Progress
 
 - [ ] Footer is scaffolded, but final contact/social links are not added yet.
-- [ ] Project cards are GitHub-backed, but screenshots and richer hand-written case-study notes are not added yet.
 - [ ] Status is controlled by `public/status.json`, but there is no editing UI or documented status-change workflow yet.
 - [ ] GitHub repository display depends on build-time environment variables and network/API availability.
 - [ ] Local GitHub Pages base-path testing is supported in code, but `NEXT_PUBLIC_BASE_PATH` is not listed in `.env.example` yet.
 - [ ] The global stylesheet currently lives in `public/global`; decide whether that should stay there or move back under `src`.
+- [ ] Screenshots, search, filtering, and hand-written project case studies are deferred future decisions.
 
 ## Tech Stack
 
@@ -49,6 +56,9 @@ The current build has a shared app shell, fixed header/footer, animated hero wit
 - Anime.js 4
 - TanStack Query
 - GitHub REST API
+- React Markdown
+- Remark GFM
+- Rehype Slug
 - Browser Geolocation API
 - Open-Meteo Forecast API
 - GitHub Pages
@@ -88,6 +98,9 @@ The current build has a shared app shell, fixed header/footer, animated hero wit
 │   │   ├── about/
 │   │   │   └── page.tsx           About route
 │   │   ├── projects/
+│   │   │   ├── [owner]/
+│   │   │   │   └── [repo]/
+│   │   │   │       └── page.tsx   Static repository detail route
 │   │   │   └── page.tsx           GitHub-backed Projects route
 │   │   ├── favicon.ico
 │   │   ├── layout.tsx             Root layout, app shell, metadata, and providers
@@ -101,12 +114,19 @@ The current build has a shared app shell, fixed header/footer, animated hero wit
 │   │   ├── header/
 │   │   │   └── Header.tsx         Fixed navigation and theme toggle
 │   │   ├── projects/
-│   │   │   └── Projects.tsx       GitHub project board UI
+│   │   │   ├── ContributorCredits.tsx
+│   │   │   ├── ProjectCard.tsx
+│   │   │   ├── ProjectDetail.tsx
+│   │   │   ├── Projects.tsx
+│   │   │   ├── RepositoryReadme.tsx
+│   │   │   └── project-formatters.ts
 │   │   ├── weather/
 │   │   │   └── Weather.tsx        Geolocation weather forecast card
 │   │   └── HeroIntro.tsx          Animated hero and status card
 │   └── libraries/
-│       └── github.ts              Server-only GitHub repository loader
+│       ├── github.ts              Server-only GitHub repository loader
+│       ├── project-routes.ts      Project detail route helpers
+│       └── readme.ts              README URL safety helpers
 ├── .env.example
 ├── next.config.ts
 ├── package.json
@@ -136,7 +156,8 @@ The app is configured for static export:
 
 - `next.config.ts` uses `output: "export"`.
 - Build output is written to `out/`.
-- Images are configured with `unoptimized: true` for static hosting.
+- Dynamic repository detail pages are generated at build time from `getGithubRepos()`.
+- `next/image` is configured for static hosting with unoptimized output and GitHub avatar remote patterns.
 - `.github/workflows/pages.yml` runs `npm ci`, `npm run build`, uploads `./out`, and deploys to GitHub Pages.
 
 ## Getting Started
@@ -174,8 +195,8 @@ npm run build
 ## Next Work
 
 - [ ] Finish the footer with final contact links and social links.
-- [ ] Add screenshots or curated case-study notes to project cards.
 - [ ] Document how to change `public/status.json` safely.
 - [ ] Add `NEXT_PUBLIC_BASE_PATH` to `.env.example` if local GitHub Pages path testing becomes routine.
 - [ ] Decide whether `public/global/globals.css` should stay in `public/global` or move back into `src/global`.
 - [ ] Verify the GitHub Pages workflow after the next push to `main`.
+- [ ] Decide whether to add search, filtering, screenshots, or hand-written case studies to Projects later.
